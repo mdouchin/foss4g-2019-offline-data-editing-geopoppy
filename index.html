@@ -92,15 +92,18 @@
     </section>
 
     <section data-markdown data-background="">
-    ## Lizmap Web Client
+    ## Lizmap Web Client ?
 
     * **QGIS projects published as full featured web maps**
-      * Lizmap plugin to configure the map
-      * Respect QGIS project features & properties: styling, layer tree, attribute table, form editing, printing via composers, relations
+      * Lizmap QGIS plugin to configure the map
+      * Respects QGIS project properties: styling, layer tree, attribute table, form editing, printing via composers, relations between layers, etc.
     * **Authentication and group rights**: restrict map access, editing tools, data export, etc.
 
     ![Logo Lizmap](media/logo_lizmap.jpg)
+
     </section>
+
+    <section data-background="media/lizmap_meylan_home.jpg">&nbsp;</section>
 
     <section data-background="media/qgis_map.png">&nbsp;</section>
     <section data-background="media/lizmap_map.png">&nbsp;</section>
@@ -109,8 +112,6 @@
     <section data-background="media/grace_thd.png">&nbsp;</section>
     <section data-background="media/lizmap-dataviz.jpeg">&nbsp;</section>
     <section data-background="media/lizmap_relations_view.png">&nbsp;</section>
-    <section data-background="media/lizmap_meylan_home.jpg">&nbsp;</section>
-
 
     <section data-markdown data-background="">
     ## PostgreSQL Valabre database
@@ -131,7 +132,7 @@
 
 <section>
     <section data-markdown data-background="lightblue">
-    # Project
+    # Project objectives
     ## See and edit data offline
     ## mainly in the field
     </section>
@@ -140,8 +141,8 @@
     ## Requirements and constraints
 
     * **GIS features**: multiple layers, data editing, baselayers (aerial photos, dem), attribute table, etc.
-    * Must be **based on QGIS projects** to simplify the workflow & respect harmonized styling
-    * Use **PostgreSQL in the field**: constraints, triggers, views (buffers, etc.)
+    * **Based on QGIS projects** to simplify the workflow & respect harmonized styling
+    * Use **PostgreSQL offline**: constraints, triggers, views (buffers, etc.)
     * **No internet connection** or connection **not stable or expensive** -> work offline
     * **Heavy datasets**
     </section>
@@ -149,11 +150,9 @@
     <section data-markdown data-background="">
     ## Features requirements
 
-    * **Insert/update/delete** features
-    * **Rich forms needed**: lists, checboxes, images, date fields, etc.
-    * Keep **Lizmap features**:
-      * authentication and rights management -> login needed and saved in data
-      * tools: attribute tables, popups, filters, relations
+    * **Rich forms**: lists, checkboxes, images, date fields, etc.
+    * Authentication and rights management -> login saved in data
+    * **Tools**: data editing, attribute tables, popups, filters, relations, etc.
     * **Synchronization**
       * between the **offline database copies**
       * and the **central server database**.
@@ -164,9 +163,9 @@
     <section data-markdown data-background="">
     ## Studied solutions / needs
 
-    * Android tablets / Windows tablets
-    * Simple field data collection tool / QGIS based mobile solution
-    * For the latter: QField / Input / GeoPoppy
+    * Windows tablets -> **Android tablets** (price)
+    * Simple field data collection tools (ODK) -> **QGIS based** mobile solution (full-featured)
+    * QField -> **GeoPoppy** (PostgreSQL, Auth, known solution)
 
     Valabre chose to test **GeoPoppy**
 
@@ -178,12 +177,12 @@
 
 <section>
     <section data-markdown data-background="lightblue">
-    # Geopoppy
+    # GeoPoppy
     ## Description / testing phase
     </section>
 
     <section data-markdown data-background="">
-    ## Geopoppy
+    ## GeoPoppy
     ### A spatial server in a box
 
     * **Hardware**: RaspberryPi / Battery / Tablet or smartphone or laptop with a web browser (Firefox)
@@ -198,26 +197,26 @@
     <section data-background="media/utilisation_branchement.jpg">&nbsp;</section>
 
     <section data-markdown data-background="">
-    ## Geopoppy cons
+    ## GeoPoppy cons
 
     * **Additionnal devices**: *Do-It-Yourself look&feel*
-    * Tied to the **features of web browser**: geolocation API, no access to files, etc.
-    * Lizmap interface is responsive but **not dedicated to mobile**: some improvements needed
-    * Cannot connect to 5G and Geopoppy WIFI **at the same time**: **Android OS restriction**
+    * Tied to the **web browsers capabilities**: geolocation API, save files locally, etc.
+    * Lizmap interface is responsive but **not dedicated to mobile** -> some improvements needed
+    * Cannot connect to 3/4/5G and GeoPoppy WIFI **at the same time** -> **Android OS restriction**
 
     </section>
 
 
     <section data-markdown data-background="">
-    ## Geopoppy pros
+    ## GeoPoppy pros
 
-    * **OpenSource** and cheap
-    * **Work offline**
+    * **OpenSource software** and **affordable hardware**
+    * Work **offline**
     * **No new software**: QGIS Server / Lizmap / PostgreSQL
-    * **Same worklow** to publish the web maps and data to the central server
-    * **PostgreSQL powered** : views, constraints, etc.
+    * **Known worklow** to publish the web maps and data to the central server
+    * **PostgreSQL powered** : views, constraints, triggers.
     * **QGIS Server powered**: all raster/vector formats (no conversion needed)
-    * **Lizmap powered**: authentication and rigths, rich forms from QGIS, styles, etc.
+    * **Lizmap powered**: authentication and rigths, rich forms from QGIS, atlas, styles, etc.
 
     </section>
 
@@ -243,24 +242,26 @@
     </section>
 
     <section data-markdown data-background="">
-    ## Database synchronization key ideas
+    ## Synchronization key ideas
 
-    * **package** from server/ **deploy** to device / **synchronize** data
-    * **No conflicts management**: last action wins
+    * Two phases
+      * **package** QGIS project & database from the central Lizmap/PostgreSQL server -> **deploy** to the GeoPoppy
+      * **Two-way db data sync** and **upload new media** to the server
+    * **No conflicts management** -> last action wins
     * **UUID field** in every table: *c0558823-d20a-40c8-903c-0d8c4f4dad7d*
-    * **Clone partial database** in each Geopoppy ( unique ID per device)
+    * Each GeoPoppy defined by its **unique UUID**
     * On update, **only changed fields** data is synchronized
 
     </section>
 
     <section data-markdown data-background="">
-    ## Database synchronization tools
+    ## Synchronization tools
 
     * Based on **PostgreSQL triggers/functions**: *audit.sql* with additionnal sync procedures
     * **Log every actions** with many information :
-      * initial raw data before change & changed fields
-      * user and app, timestamp,
-      * uid of the source device, etc.
+      * initial raw data before change & changed fields,
+      * user and app names, timestamp,
+      * uuid of the source device, etc.
     * **Centralize all audit** log in the main server
     * **Sync process**:
       * Get central server modifications
@@ -306,19 +307,19 @@
     </section>
 
     <section data-markdown data-background="">
-    ## Sync tool user interface
+    ## Sync tools
+    ### QGIS processing algs
 
-    * **A QGIS plugin** with **Python processing algorithms**
-    * Usable in **QGIS desktop** (Processing menu)
-    * Usable server-side : **WPS server based on QGIS processing framework**
-    * Usable in the **Geopoppy** device via Lizmap
+    * **A QGIS plugin** as a **Python processing provider**
+    * Use it in **QGIS desktop**: Processing menu with algs
+    * Use it **server-side**: 3liz WPS server async implementation based on QGIS processing framework
+    * Use it **in the GeoPoppy** device: via Lizmap
 
     </section>
 
-    <section data-markdown data-background="">
-    ![Logo QGIS](media/qgis-processing-algs.png)
+    <section data-background="">
+    <img src="media/qgis-processing-algs.png" style="background-color:white;padding:10px;">
     </section>
-
     <section data-background="media/utilisation_wps_fichiers_recuperer_1.png">&nbsp;</section>
     <section data-background="media/utilisation_wps_fichiers_recuperer_2.png">&nbsp;</section>
 
@@ -338,36 +339,37 @@
     * **It works !**
       * in the field,
       * but also as an offline **portable full GIS server** (WMS, WFS, WPS, PostgreSQL, etc.)
-    * Need to **improve the workflow** : simplify processing algs
-    * Improve **PyQGIS WPS Server** and Lizmap client
-    * Complex QGIS projects with many layers are **slow to render**
+      * more tests needed and QGIS plugin not released yet
+    * **Simplify the workflow** : easier with good QGIS & PostgreSQL knowledge
+    * Improve **PyQGIS WPS Server** and **Lizmap WPS client**
+    * Complex QGIS projects can be **slow to render**
     * **Lizmap responsive web interface** can be improved
 
     </section>
 
     <section data-markdown data-background="">
-    ## The future
-    ### GeoPoppy on Android !
+    ## GeoPoppy on Android !
 
-    * All the stack **inside your Android device**
-    * No additionnal hardware devices needed: **only your tablet**
-    * PostgreSQL running on Android: https://github.com/CypherpunkArmory/UserLAnd/issues/256
+    * No additionnal hardware devices needed: **only your Android device** thanks to UserLand
     * Much **better performances**
-    * **Almost production ready**: some work needed to package this solution.
+    * Use **3/4/5G** in the field: sync and display external layers (WMS, WFS, etc.)
+    * **PostgreSQL** running on Android -> can also be used with QField or Input
+    * **Almost production ready**: some work needed to package this solution, add doc, etc.
 
     </section>
 
     <section data-markdown data-background="">
-    ## Links
+    ## Some links
 
-    * Valabre: https://www.valabre.com/
-    * Geopoppy: https://github.com/jancelin/geo-poppy/
+    * GeoPoppy: https://github.com/jancelin/geo-poppy/
     * Julien Ancelin: https://twitter.com/complementterre/
-    * Geopoppy on Android:
+    * GeoPoppy on Android:
       * Github: https://github.com/jancelin/geopoppy_android
-      * Video: https://twitter.com/complementterre/status/1133836725137096705
+      * Video https://twitter.com/complementterre/status/1133836725137096705
     * PostgreSQL Audit: https://github.com/Oslandia/audit_trigger/
-    * PyQGIS WPS Server implementation: https://github.com/3liz/py-qgis-wps
+    * PyQGIS WPS Server by 3liz: https://github.com/3liz/py-qgis-wps
+    * PostgreSQL in UserLand: https://github.com/CypherpunkArmory/UserLAnd/issues/256
+    * Lizmap Web Client: https://www.lizmap.com/en/
 
     </section>
 </section>
@@ -381,13 +383,14 @@
 <h2>Thanks for your attention</h2>
 
 <img src="media/Logo_car_coul.png" style="background-color:white;padding:10px;height:200px;">
+<img src="media/logo_geopoppy.png" style="height:220px;">
 <img src="media/logo_foss4g2019.png" style="height:220px;">
 
 </section>
 
 
 <div class="footer">
-    <img src="media/logo_foss4g2019.png" style="height:40px;">  <span style="margin-left:10px;">Foss4G 2019</span>
+    <img src="media/logo_foss4g2019.png" style="height:70px;">  <span style="margin-left:10px;">Foss4G 2019</span>
 </div>
 
 </div>
