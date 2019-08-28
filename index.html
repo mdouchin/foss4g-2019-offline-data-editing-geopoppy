@@ -1,0 +1,421 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Foss4G 2019 - Offline viewing and editing spatial data for Forest Fire Defense</title>
+
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/black.css">
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/monokai.css">
+    <!--3liz style-->
+    <link rel="stylesheet" href="css/3liz.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+    var link = document.createElement( 'link' );
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+    document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<section>
+    <h2>Offline viewing and editing spatial data for Forest Fire Defense</h1>
+
+    <h3>Feedback on the GeoPoppy solution</h2>
+
+    <img src="media/Logo_car_coul.png" style="background-color:white;padding:10px;height:200px;">
+    <img src="media/logo_geopoppy.png" style="height:220px;">
+    <img src="media/logo_foss4g2019.png" style="height:220px;">
+
+    <h4>Michaël Douchin - 3liz</h3>
+</section>
+
+
+
+<section>
+    <section data-markdown data-background="lightblue">
+    # Context
+    ## Stakeholders, data, softwares
+    </section>
+
+    <section data-markdown data-background="media/valabre_small.jpg" class="black-font">
+    ##  Stakeholders
+
+    * **Valabre**: french public institution
+    * **Help and support actors**: prevent and fight natural risks (fire, flood, etc.)
+    * **Actions**: test new technologies, research, trainings, share services, tools and data.
+    * **Partners**: cooperation between several organizations in the French Mediterranean areas.
+
+    ![Valabre](media/Logo-Valabre_400.png)
+
+    </section>
+
+    <section data-background="media/plaquette_valabre.jpg">&nbsp;</section>
+
+
+    <section data-markdown data-background="">
+    ## History: consolidate data between partners
+
+    * **Data**: fire fighting infrastructure: water tankers, tracks, watchtowers + standardized grids + base layers
+    * **Harmonization and centralization** between actors:
+      * list of **layers** to share (name, metadata, ontology)
+      * agree on data structure (fields, constraints, etc.)
+      * create common glossary
+      * aggreement on data styling (symbols, colors, etc.)
+    * **Spatial extent**: French Mediterranean areas (125&nbsp;965&nbsp;km2)
+    * **Vectors** 200 Mo / **Rasters** 30Go
+    </section>
+
+
+    <section data-background="media/qgis_donnees_dfci.jpg">&nbsp;</section>
+    <section data-background="media/openvalabre_emprise_globale.jpg">&nbsp;</section>
+
+    <section data-markdown data-background="">
+    ## Softwares already in use
+
+    * **QGIS** used by *Valabre* workers, but some actors also use Mapinfo/ESRI/Geoconcept
+    * **PostgreSQL** to store and process data:
+      * Dedicated server (hosted by 3liz)
+    * **Lizmap Web Client / QGIS Server** to publish web maps from QGIS
+
+    ![Logo QGIS](media/qgis-icon.jpg)
+    ![Logo PostgreSQL](media/logo-postgresql.jpg)
+    ![Logo Lizmap](media/logo_lizmap.jpg)
+    </section>
+
+    <section data-markdown data-background="">
+    ## Lizmap Web Client
+
+    * **QGIS projects published as full featured web maps**
+      * Lizmap plugin to configure the map
+      * Respect QGIS project features & properties: styling, layer tree, attribute table, form editing, printing via composers, relations
+    * **Authentication and group rights**: restrict map access, editing tools, data export, etc.
+
+    ![Logo Lizmap](media/logo_lizmap.jpg)
+    </section>
+
+    <section data-background="media/qgis_map.png">&nbsp;</section>
+    <section data-background="media/lizmap_map.png">&nbsp;</section>
+
+    <section data-background="media/aduga.png">&nbsp;</section>
+    <section data-background="media/grace_thd.png">&nbsp;</section>
+    <section data-background="media/lizmap-dataviz.jpeg">&nbsp;</section>
+    <section data-background="media/lizmap_relations_view.png">&nbsp;</section>
+    <section data-background="media/lizmap_meylan_home.jpg">&nbsp;</section>
+
+
+    <section data-markdown data-background="">
+    ## PostgreSQL Valabre database
+
+    * **One schema** per actor (administrative area) + schema dedicated for admins or auditing.
+    * **Rights managements** via GRANT on schemas and tables
+    * **Procedures, triggers and Python services**:
+      * default values,
+      * history audit,
+      * send emails to admins/users depending on data modification/validation,
+      * copy data accross local schemas and global schema
+
+    ![Logo PostgreSQL](media/logo-postgresql.jpg)
+
+    </section>
+
+</section>
+
+<section>
+    <section data-markdown data-background="lightblue">
+    # Project
+    ## See and edit data offline
+    ## mainly in the field
+    </section>
+
+    <section data-markdown data-background="">
+    ## Requirements and constraints
+
+    * **GIS features**: multiple layers, data editing, baselayers (aerial photos, dem), attribute table, etc.
+    * Must be **based on QGIS projects** to simplify the workflow & respect harmonized styling
+    * Use **PostgreSQL in the field**: constraints, triggers, views (buffers, etc.)
+    * **No internet connection** or connection **not stable or expensive** -> work offline
+    * **Heavy datasets**
+    </section>
+
+    <section data-markdown data-background="">
+    ## Features requirements
+
+    * **Insert/update/delete** features
+    * **Rich forms needed**: lists, checboxes, images, date fields, etc.
+    * Keep **Lizmap features**:
+      * authentication and rights management -> login needed and saved in data
+      * tools: attribute tables, popups, filters, relations
+    * **Synchronization**
+      * between the **offline database copies**
+      * and the **central server database**.
+      * No conflit resolution needed.
+
+    </section>
+
+    <section data-markdown data-background="">
+    ## Studied solutions / needs
+
+    * Android tablets / Windows tablets
+    * Simple field data collection tool / QGIS based mobile solution
+    * For the latter: QField / Input / GeoPoppy
+
+    Valabre chose to test **GeoPoppy**
+
+    ![Logo Lizmap](media/logo_geopoppy.png)
+
+    </section>
+
+</section>
+
+<section>
+    <section data-markdown data-background="lightblue">
+    # Geopoppy
+    ## Description / testing phase
+    </section>
+
+    <section data-markdown data-background="">
+    ## Geopoppy
+    ### A spatial server in a box
+
+    * **Hardware**: RaspberryPi / Battery / Tablet or smartphone or laptop with a web browser (Firefox)
+    * **Software**: Lizmap Web Client / QGIS Server / PostgreSQL / FTP Server.
+    * **Main conceptor**: **Julien Ancelin** with some help by 3liz
+    * Based on **Docker**
+    * **Already used** by researchers in France, Ivory Coast, Madagascar, etc.
+
+    </section>
+    <section data-background="media/geopoppy_materiel_caracteristiques.png">&nbsp;</section>
+    <section data-background="media/geopoppy_presentation.png">&nbsp;</section>
+    <section data-background="media/utilisation_branchement.jpg">&nbsp;</section>
+
+    <section data-markdown data-background="">
+    ## Geopoppy cons
+
+    * **Additionnal devices**: *Do-It-Yourself look&feel*
+    * Tied to the **features of web browser**: geolocation API, no access to files, etc.
+    * Lizmap interface is responsive but **not dedicated to mobile**: some improvements needed
+    * Cannot connect to 5G and Geopoppy WIFI **at the same time**: **Android OS restriction**
+
+    </section>
+
+
+    <section data-markdown data-background="">
+    ## Geopoppy pros
+
+    * **OpenSource** and cheap
+    * **Work offline**
+    * **No new software**: QGIS Server / Lizmap / PostgreSQL
+    * **Same worklow** to publish the web maps and data to the central server
+    * **PostgreSQL powered** : views, constraints, etc.
+    * **QGIS Server powered**: all raster/vector formats (no conversion needed)
+    * **Lizmap powered**: authentication and rigths, rich forms from QGIS, styles, etc.
+
+    </section>
+
+    <section data-background="">
+    <img src="media/utilisation_lizmap_menu_couches.png" style="">
+    </section>
+
+    <section>
+    <img src="media/utilisation_lizmap_menu_edition_4.png" style="">
+    </section>
+
+    <section>
+    <img src="media/utilisation_lizmap_menu_edition_2.png" style="">
+    </section>
+
+</section>
+
+<section>
+
+    <section data-markdown data-background="lightblue">
+    # Synchronization
+    ## concepts and tools
+    </section>
+
+    <section data-markdown data-background="">
+    ## Database synchronization key ideas
+
+    * **package** from server/ **deploy** to device / **synchronize** data
+    * **No conflicts management**: last action wins
+    * **UUID field** in every table: *c0558823-d20a-40c8-903c-0d8c4f4dad7d*
+    * **Clone partial database** in each Geopoppy ( unique ID per device)
+    * On update, **only changed fields** data is synchronized
+
+    </section>
+
+    <section data-markdown data-background="">
+    ## Database synchronization tools
+
+    * Based on **PostgreSQL triggers/functions**: *audit.sql* with additionnal sync procedures
+    * **Log every actions** with many information :
+      * initial raw data before change & changed fields
+      * user and app, timestamp,
+      * uid of the source device, etc.
+    * **Centralize all audit** log in the main server
+    * **Sync process**:
+      * Get central server modifications
+      * Then send local modifications
+
+    </section>
+
+    <section data-markdown data-background="">
+    ## Example log for INSERT
+    ```
+    event_id | 24
+    schema_name | dfci_vaucluse
+    table_name | VIG_Vaucluse
+    session_user_name | "geopoppy@valabre"
+    action_tstamp_tx | 2019-08-13 15:12:06.126626+02
+    action | I
+    row_data | "id"=>"47", "uid"=>"cb0344c4-c936-378a-2fae-96dd031a820b", "geom"=>"01010000206A08000023FDF38C15332B4118D448D97C035841",
+    "login"=>"j.doe|John|Doe|", "hauteur"=>"34", "nom_vig"=>"Vigie ", "service"=>"SDIS"
+    changed_fields |
+    sync_data | {"origin": "23e2218b-42cb-0963-eb25-8fe37cfeae50",
+    "replayed_by": {"2f9c2d17-fbb3-6cd2-2dbb-2b2738ba0029": "3a80a443-1338-722b-23c7-1751933fdd06"}}
+    ```
+    </section>
+
+    <section data-markdown data-background="">
+    ## Example log for UPDATE
+    ```
+    event_id | 16
+    schema_name | dfci_bouches_du_rhone
+    table_name | HBE_CONTROLE
+    session_user_name | "geopoppy@valabre"
+    action_tstamp_tx | 2019-07-26 16:51:57.265702+02
+    action | U
+    row_data | "id"=>"30", "uid"=>"b714709d-129b-6a97-fe89-21260604ba0c",
+    "geom"=>"01010000206A080000AAF1D24D4C2C2A415839B4282D005841", "user"=>"hbe",
+    "photo"=>NULL, "a_supp"=>"", "trappe"=>"inc", "date_creat"=>"2017-04-24",
+    "date_modif"=>"2017-04-24", "coordonnees_x"=>NULL, "coordonnees_y"=>NULL, "carroyage_dfci"=>NULL
+    changed_fields | "a_supp"=>"NON", "trappe"=>"NON", "date_modif"=>"2019-07-26", "page_atlas"=>"45", "nom_commune"=>"Aureille", "coordonnees_x"=>"4° 57.332'", "coordonnees_y"=>"43° 42.372'", "carroyage_dfci"=>"KD04F9"
+    "sync_data" | {"origin": "2c192051-2cc9-deda-fab7-f97e18b1caa6",
+    "replayed_by": {"2f9c2d17-fbb3-6cd2-2dbb-2b2738ba0029":
+ "acfc1373-60eb-74ff-4657-df1ffc73d8a0"}}
+    ```
+    </section>
+
+    <section data-markdown data-background="">
+    ## Sync tool user interface
+
+    * **A QGIS plugin** with **Python processing algorithms**
+    * Usable in **QGIS desktop** (Processing menu)
+    * Usable server-side : **WPS server based on QGIS processing framework**
+    * Usable in the **Geopoppy** device via Lizmap
+
+    </section>
+
+    <section data-markdown data-background="">
+    ![Logo QGIS](media/qgis-processing-algs.png)
+    </section>
+
+    <section data-background="media/utilisation_wps_fichiers_recuperer_1.png">&nbsp;</section>
+    <section data-background="media/utilisation_wps_fichiers_recuperer_2.png">&nbsp;</section>
+
+
+</section>
+
+<section>
+
+    <section data-markdown data-background="lightblue">
+    # Conclusion
+    ## Feedback, roadmap, ideas
+    </section>
+
+    <section data-markdown data-background="">
+    ## Feedback
+
+    * **It works !**
+      * in the field,
+      * but also as an offline **portable full GIS server** (WMS, WFS, WPS, PostgreSQL, etc.)
+    * Need to **improve the workflow** : simplify processing algs
+    * Improve **PyQGIS WPS Server** and Lizmap client
+    * Complex QGIS projects with many layers are **slow to render**
+    * **Lizmap responsive web interface** can be improved
+
+    </section>
+
+    <section data-markdown data-background="">
+    ## The future
+    ### GeoPoppy on Android !
+
+    * All the stack **inside your Android device**
+    * No additionnal hardware devices needed: **only your tablet**
+    * PostgreSQL running on Android: https://github.com/CypherpunkArmory/UserLAnd/issues/256
+    * Much **better performances**
+    * **Almost production ready**: some work needed to package this solution.
+
+    </section>
+
+    <section data-markdown data-background="">
+    ## Links
+
+    * Valabre: https://www.valabre.com/
+    * Geopoppy: https://github.com/jancelin/geo-poppy/
+    * Julien Ancelin: https://twitter.com/complementterre/
+    * Geopoppy on Android:
+      * Github: https://github.com/jancelin/geopoppy_android
+      * Video: https://twitter.com/complementterre/status/1133836725137096705
+    * PostgreSQL Audit: https://github.com/Oslandia/audit_trigger/
+    * PyQGIS WPS Server implementation: https://github.com/3liz/py-qgis-wps
+
+    </section>
+</section>
+
+
+
+
+
+
+<section data-background="">
+<h2>Thanks for your attention</h2>
+
+<img src="media/Logo_car_coul.png" style="background-color:white;padding:10px;height:200px;">
+<img src="media/logo_foss4g2019.png" style="height:220px;">
+
+</section>
+
+
+<div class="footer">
+    <img src="media/logo_foss4g2019.png" style="height:40px;">  <span style="margin-left:10px;">Foss4G 2019</span>
+</div>
+
+</div>
+</div>
+
+
+
+    <script src="js/reveal.js"></script>
+
+    <script>
+        // More info about config & dependencies:
+        // - https://github.com/hakimel/reveal.js#configuration
+        // - https://github.com/hakimel/reveal.js#dependencies
+        Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                transition: 'slide',
+                dependencies: [
+                        { src: 'plugin/markdown/marked.js' },
+                        { src: 'plugin/markdown/markdown.js' },
+                        { src: 'plugin/notes/notes.js', async: true },
+                        { src: 'plugin/highlight/highlight.js', async: true },
+                        { src: 'plugin/zoom-js/zoom.js', async: true },
+                ]
+        });
+    </script>
+</body>
+</html>
